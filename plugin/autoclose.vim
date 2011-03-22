@@ -269,7 +269,8 @@ function! s:DefineVariables()
         if exists("g:AutoClosePairs") && type(g:AutoClosePairs) == type({})
             let b:AutoClosePairs = g:AutoClosePairs
         else
-            let b:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'"}
+            let b:AutoClosePairs = {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'",
+                        \ '<': '>', '`': '`', '«': '»'}
         endif
     endif
     "
