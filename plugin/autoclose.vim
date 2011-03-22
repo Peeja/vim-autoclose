@@ -392,6 +392,17 @@ function! s:CreatePairsMaps()
             exec "inoremap <buffer> <silent> " . map_close . " <C-R>=<SID>ClosePair(" . close_func_arg . ")<CR>"
         endif
     endfor
+
+    " Setup ambiguous mapping to fix vt100/xterm cursor keys by making vim
+    " fully processes the escape sequence for terminal keys. See 'ttimeout'
+    " and xterm-cursor-keys for a rough explanation; this just forces it to
+    " work.
+    " Fix taken from autoclose.vim by Karl Guertin, and extended for 'screen*',
+    " see https://github.com/vim-scripts/AutoClose/commit/d50ea9a8.
+    if &term[:4] == "xterm" || &term[:5] == "screen"
+      inoremap <buffer> <silent> <C-[>OC <RIGHT>
+    endif
+
 endfunction
 
 function! s:CreateExtraMaps()
