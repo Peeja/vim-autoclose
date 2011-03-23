@@ -427,10 +427,13 @@ let s:mapRemap = {'|': '<Bar>', ' ': '<Space>'}
 let s:argRemap = {'"': '\"'}
 let s:movementKeys = ['Esc', 'Up', 'Down', 'Left', 'Right', 'Home', 'End']
 
+augroup <Plug>(autoclose)
+au!
 autocmd FileType * call <SID>CreateMaps()
 autocmd BufNewFile,BufRead,BufEnter * if !<SID>IsLoadedOnBuffer() | call <SID>CreateMaps() | endif
 autocmd InsertEnter * call <SID>EmptyBuffer()
 autocmd BufEnter * if mode() == 'i' | call <SID>EmptyBuffer() | endif
+augroup END
 
 " Define convenient commands
 command! AutoCloseOn :let b:AutoCloseOn = 1
