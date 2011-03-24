@@ -331,7 +331,7 @@ function! s:DefineVariables()
         if exists("g:AutoClosePumvisible" . key)
             exec 'let l:var = g:AutoClosePumvisible' . key
             if type(l:var) == type("")
-                let b:AutoClosePumvisibleDown = g:AutoClosePumvisibleDown
+                exec 'let b:AutoClosePumvisible' . key . ' = g:AutoClosePumvisible' . key
             endif
         else
             exec 'let b:AutoClosePumvisible' . key . ' = ""'
