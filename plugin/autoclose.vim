@@ -19,6 +19,14 @@ let g:loaded_AutoClose = 1
 let s:global_cpo = &cpo " store compatible-mode in local variable
 set cpo&vim             " go into nocompatible-mode
 
+" Setup ambiguous mapping to fix vt100/xterm cursor keys by making vim
+" fully processes the escape sequence for terminal keys. See 'ttimeout'
+" and xterm-cursor-keys for a rough explanation; this just forces it to
+" work.
+" Fix taken from autoclose.vim by Karl Guertin, and extended for 'screen*',
+" see https://github.com/vim-scripts/AutoClose/commit/d50ea9a8.
+let s:needspecialkeyhandling = &term[:4] == "xterm" || &term[:5] == "screen"
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -373,13 +381,9 @@ function! s:CreatePairsMaps()
         endif
     endfor
 
-    " Setup ambiguous mapping to fix vt100/xterm cursor keys by making vim
-    " fully processes the escape sequence for terminal keys. See 'ttimeout'
-    " and xterm-cursor-keys for a rough explanation; this just forces it to
-    " work.
-    " Fix taken from autoclose.vim by Karl Guertin, and extended for 'screen*',
-    " see https://github.com/vim-scripts/AutoClose/commit/d50ea9a8.
-    if &term[:4] == "xterm" || &term[:5] == "screen"
+    if s:needspecialkeyhandling
+      " although there's movementKeysXterm mapping now, this is still required
+      " (ordering maybe?)
       inoremap <buffer> <silent> <C-[>OC <RIGHT>
     endif
 
@@ -393,6 +397,9 @@ function! s:CreateExtraMaps()
     if b:AutoClosePreservDotReg == 1
         " Fix the re-do feature by flushing the char buffer on key movements (including Escape):
         for key in s:movementKeys
+            if s:needspecialkeyhandling
+                exec 'inoremap <buffer> <silent>' . s:movementKeysXterm[key] . '<'.key.'>'
+            endif
             exe 'let l:pvisiblemap = b:AutoClosePumvisible' . key
             if !empty(l:pvisiblemap)
                 exec "inoremap <buffer> <silent> <expr>  <" . key . ">  pumvisible() ? \"\\" . pvisiblemap . "\" : \"\\<C-R>=<SID>FlushBuffer()\\<CR>\\<" . key . ">\""
@@ -425,7 +432,12 @@ endfunction
 " here is a dictionary of characters that need to be converted before being used as map
 let s:mapRemap = {'|': '<Bar>', ' ': '<Space>'}
 let s:argRemap = {'"': '\"'}
-let s:movementKeys = ['Esc', 'Up', 'Down', 'Left', 'Right', 'Home', 'End']
+
+let s:movementKeys = ['Esc', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown']
+if s:needspecialkeyhandling
+  " map s:movementKeys to xterm equivalent
+  let s:movementKeysXterm = {'Esc': '<C-[>', 'Up': '<C-[>OA', 'Down': '<C-[>OB', 'Left': '<C-[>OD', 'Right': '<C-[>OC', 'Home': '<C-[>OH', 'End': '<C-[>OF', 'PageUp': '<C-[>[5~]', 'PageDown': '<C-[>[6~]'}
+endif
 
 augroup <Plug>(autoclose)
 au!
