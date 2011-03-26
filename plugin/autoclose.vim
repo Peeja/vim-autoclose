@@ -381,12 +381,6 @@ function! s:CreatePairsMaps()
         endif
     endfor
 
-    if s:needspecialkeyhandling
-      " although there's movementKeysXterm mapping now, this is still required
-      " (ordering maybe?)
-      inoremap <buffer> <silent> <C-[>OC <RIGHT>
-    endif
-
 endfunction
 
 function! s:CreateExtraMaps()
@@ -398,7 +392,7 @@ function! s:CreateExtraMaps()
         " Fix the re-do feature by flushing the char buffer on key movements (including Escape):
         for key in s:movementKeys
             if s:needspecialkeyhandling
-                exec 'inoremap <buffer> <silent>' . s:movementKeysXterm[key] . '<'.key.'>'
+                exec 'imap <buffer> <silent>' . s:movementKeysXterm[key] . ' <'.key.'>'
             endif
             exe 'let l:pvisiblemap = b:AutoClosePumvisible' . key
             if !empty(l:pvisiblemap)
