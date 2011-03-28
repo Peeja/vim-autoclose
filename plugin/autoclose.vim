@@ -19,12 +19,8 @@ let g:loaded_AutoClose = 1
 let s:global_cpo = &cpo " store compatible-mode in local variable
 set cpo&vim             " go into nocompatible-mode
 
-" Setup ambiguous mapping to fix vt100/xterm cursor keys by making vim
-" fully processes the escape sequence for terminal keys. See 'ttimeout'
-" and xterm-cursor-keys for a rough explanation; this just forces it to
-" work.
-" Fix taken from autoclose.vim by Karl Guertin, and extended for 'screen*',
-" see https://github.com/vim-scripts/AutoClose/commit/d50ea9a8.
+" Determine if special handling is required for xterm/screen/vt100
+" movement keys.
 let s:needspecialkeyhandling = &term[:4] == "xterm" || &term[:5] == "screen"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
