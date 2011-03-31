@@ -283,7 +283,7 @@ function! s:DefineVariables()
     " Let the user define if he/she wants the plugin to do special actions when the
     " popup menu is visible and a movement key is pressed.
     for key in s:movementKeys
-        let defaults['AutoClosePumvisible'.key] = ''
+        let defaults['AutoClosePumvisible'.key] = '<'.key.'>'
     endfor
 
     " Now handle/assign values
@@ -344,11 +344,7 @@ function! s:CreateExtraMaps()
                 exec 'imap <buffer> <silent>' . s:movementKeysXterm[key] . ' <'.key.'>'
             endif
             exe 'let l:pvisiblemap = b:AutoClosePumvisible' . key
-            if !empty(l:pvisiblemap)
-                exec "inoremap <buffer> <silent> <expr>  <" . key . ">  pumvisible() ? \"\\" . pvisiblemap . "\" : \"\\<C-R>=<SID>FlushBuffer()\\<CR>\\<" . key . ">\""
-            else
-                exec 'inoremap <buffer> <silent> <' . key . '>    <C-R>=<SID>FlushBuffer()<CR><' . key . '>'
-            endif
+            exec "inoremap <buffer> <silent> <expr>  <" . key . ">  pumvisible() ? \"" . l:pvisiblemap . "\" : \"\\<C-R>=<SID>FlushBuffer()\\<CR>\\<" . key . ">\""
         endfor
 
         " Flush the char buffer on mouse click:
