@@ -193,7 +193,9 @@ function! s:InsertPair(char)
 
     let l:next = s:GetNextChar()
     let l:result = a:char
-    if b:AutoCloseOn && !s:IsForbidden(a:char) && (l:next == "\0" || l:next !~ '\w') && s:AllowQuote(a:char, 0)
+    " only add closing pair before space or any of the closepair chars
+    let close_before = '\s\|\V\[' . escape(join(keys(b:AutoClosePairs) + values(b:AutoClosePairs), ''), ']').']'
+    if b:AutoCloseOn && !s:IsForbidden(a:char) && (l:next == "\0" || l:next =~ close_before) && s:AllowQuote(a:char, 0)
         call s:InsertCharsOnLine(b:AutoClosePairs[a:char])
         call s:PushBuffer(b:AutoClosePairs[a:char])
     endif
