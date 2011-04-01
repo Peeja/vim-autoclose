@@ -282,7 +282,12 @@ function! s:DefineVariables()
 
     " Let the user define if he/she wants the plugin to do special actions when the
     " popup menu is visible and a movement key is pressed.
+    " Movement keys used in the menu get mapped to themselves
+    " (Up/Down/PageUp/PageDown).
     for key in s:movementKeys
+        let defaults['AutoClosePumvisible'.key] = ''
+    endfor
+    for key in s:pumMovementKeys
         let defaults['AutoClosePumvisible'.key] = '<'.key.'>'
     endfor
 
@@ -344,7 +349,11 @@ function! s:CreateExtraMaps()
                 exec 'imap <buffer> <silent>' . s:movementKeysXterm[key] . ' <'.key.'>'
             endif
             exe 'let l:pvisiblemap = b:AutoClosePumvisible' . key
-            exec "inoremap <buffer> <silent> <expr>  <" . key . ">  pumvisible() ? \"" . l:pvisiblemap . "\" : \"\\<C-R>=<SID>FlushBuffer()\\<CR>\\<" . key . ">\""
+            if len(l:pvisiblemap)
+              exec "inoremap <buffer> <silent> <expr>  <" . key . ">  pumvisible() ? \"" . l:pvisiblemap . "\" : \"\\<C-R>=<SID>FlushBuffer()\\<CR>\\<" . key . ">\""
+            else
+              exec "inoremap <buffer> <silent> <" . key . ">  <C-R>=<SID>FlushBuffer()<CR><" . key . ">"
+            endif
         endfor
 
         " Flush the char buffer on mouse click:
@@ -373,6 +382,7 @@ let s:mapRemap = {'|': '<Bar>', ' ': '<Space>'}
 let s:argRemap = {'"': '\"'}
 
 let s:movementKeys = ['Esc', 'Up', 'Down', 'Left', 'Right', 'Home', 'End', 'PageUp', 'PageDown']
+let s:pumMovementKeys = ['Up', 'Down', 'PageUp', 'PageDown'] " list of keys that get mapped to themselves for pumvisible()
 if s:needspecialkeyhandling
   " map s:movementKeys to xterm equivalent
   let s:movementKeysXterm = {'Esc': '<C-[>', 'Up': '<C-[>OA', 'Down': '<C-[>OB', 'Left': '<C-[>OD', 'Right': '<C-[>OC', 'Home': '<C-[>OH', 'End': '<C-[>OF', 'PageUp': '<C-[>[5~', 'PageDown': '<C-[>[6~'}
