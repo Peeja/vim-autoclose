@@ -266,10 +266,12 @@ function! s:ToggleAutoClose()
     endif
 endfunction
 
-function! s:DefineVariables()
-    " all the following variable can be set per buffer or global. If both are set
-    " the buffer variable has priority.
-
+" Define variables (in the buffer namespace).
+" If reset is true, the variables get reset. This is used on FileType changes.
+function! s:DefineVariables(reset)
+    " All the following variables can be set per buffer or global.
+    " The buffer namespace is used internally, and gets reset on FileType
+    " events.
     let defaults = {
                 \ 'AutoClosePairs': {'(': ')', '{': '}', '[': ']', '"': '"', "'": "'",
                 \                    '<': '>', '`': '`', '«': '»'},
@@ -279,6 +281,10 @@ function! s:DefineVariables()
                 \ 'AutoCloseOn': 1,
                 \ 'AutoClosePreservDotReg': 1
                 \ }
+
+    if &ft == "ruby"
+      let defaults['AutoClosePairs']['|'] = '|'
+    endif
 
     " Let the user define if he/she wants the plugin to do special actions when the
     " popup menu is visible and a movement key is pressed.
@@ -294,7 +300,7 @@ function! s:DefineVariables()
     " Now handle/assign values
     for key in keys(defaults)
         if exists('l:var') | unlet l:var | endif
-        if exists('b:'.key)
+        if ! a:reset && exists('b:'.key)
             exec 'let l:var = b:' . key
             if type(l:var) == type(defaults[key])
                 continue
@@ -309,7 +315,6 @@ function! s:DefineVariables()
             exec 'let b:' . key . ' = ' . string(defaults[key])
         endif
     endfor
-
 endfunction
 
 function! s:CreatePairsMaps()
@@ -362,8 +367,8 @@ function! s:CreateExtraMaps()
     endif
 endfunction
 
-function! s:CreateMaps()
-    call s:DefineVariables()
+function! s:CreateMaps(reset)
+    call s:DefineVariables(a:reset)
     call s:CreatePairsMaps()
     call s:CreateExtraMaps()
 
@@ -390,8 +395,8 @@ endif
 
 augroup <Plug>(autoclose)
 au!
-autocmd FileType * call <SID>CreateMaps()
-autocmd BufNewFile,BufRead,BufEnter * if !<SID>IsLoadedOnBuffer() | call <SID>CreateMaps() | endif
+autocmd FileType * call <SID>CreateMaps(1)
+autocmd BufNewFile,BufRead,BufEnter * if !<SID>IsLoadedOnBuffer() | call <SID>CreateMaps(0) | endif
 autocmd InsertEnter * call <SID>EmptyBuffer()
 autocmd BufEnter * if mode() == 'i' | call <SID>EmptyBuffer() | endif
 augroup END
