@@ -282,8 +282,12 @@ function! s:DefineVariables(reset)
                 \ 'AutoClosePreservDotReg': 1
                 \ }
 
-    if &ft == "ruby"
+    let filetypes = split(&ft, '\.')
+    if index(filetypes, 'ruby') != -1
       let defaults['AutoClosePairs']['|'] = '|'
+    endif
+    if index(filetypes, 'typoscript') != -1 || index(filetypes, 'zsh') != -1 || index(filetypes, 'sh') != -1
+      unlet defaults['AutoClosePairs']['<']
     endif
 
     " Let the user define if he/she wants the plugin to do special actions when the
