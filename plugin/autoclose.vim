@@ -21,7 +21,9 @@ set cpo&vim             " go into nocompatible-mode
 
 " Determine if special handling is required for xterm/screen/vt100
 " movement keys.
-let s:needspecialkeyhandling = &term[:4] == "xterm" || &term[:5] == "screen" || &term[:4] == "linux"
+let s:needspecialkeyhandling = &term[:4] == "xterm"
+      \ || &term[:5] == "screen" || &term[:4] == "linux"
+      \ || &term[:3] == "rxvt" || &term[:4] == "urxvt"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Functions
