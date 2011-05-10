@@ -190,6 +190,10 @@ function! s:EraseCharsOnLine(len)
 endfunction
 
 function! s:InsertPair(char)
+    if ! b:AutoCloseOn || ! has_key(b:AutoClosePairs, a:char) || s:IsForbidden(a:char)
+      return a:char
+    endif
+
     let l:save_ve = &ve
     set ve=all
 
@@ -197,7 +201,7 @@ function! s:InsertPair(char)
     let l:result = a:char
     " only add closing pair before space or any of the closepair chars
     let close_before = '\s\|\V\[,.;' . escape(join(keys(b:AutoClosePairs) + values(b:AutoClosePairs), ''), ']').']'
-    if b:AutoCloseOn && !s:IsForbidden(a:char) && (l:next == "\0" || l:next =~ close_before) && s:AllowQuote(a:char, 0)
+    if (l:next == "\0" || l:next =~ close_before) && s:AllowQuote(a:char, 0)
         call s:InsertCharsOnLine(b:AutoClosePairs[a:char])
         call s:PushBuffer(b:AutoClosePairs[a:char])
     endif
